@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Use SSH credentials for Git authentication
-                git credentialsId: 'Docker', url: 'https://github.com/Musaele/CI_CD.git'
+                git credentialsId: 'dockerhub_credentials', url: 'https://github.com/Musaele/CI_CD.git'
             }
         }
 
