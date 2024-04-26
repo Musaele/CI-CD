@@ -4,9 +4,10 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Use SSH credentials for Git
-                sshagent(credentials: ['Docker']) {
-                    git url: 'git@github.com:Musaele/CI_CD.git', branch: 'main'
+                sshagent(credentials: ['jenkins_ssh_key']) {
+                    script {
+                        git branch: 'main', credentialsId: 'jenkins_ssh_key', url: 'git@github.com:Musaele/CI_CD.git'
+                    }
                 }
             }
         }
