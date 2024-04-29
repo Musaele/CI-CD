@@ -1,9 +1,25 @@
 pipeline {
+    options {
+        skipDefaultCheckout true
+    }
     agent any
 
     environment {
         // Define Docker Hub credentials ID
         DOCKER_HUB_CREDENTIALS = 'dockerhub_credentials'
+    }
+    
+    // Increase logging level for troubleshooting
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '5'))
+        timestamps()
+        timeout(time: 1, unit: 'HOURS')
+        buildRetention(daysToKeepStr: '30')
+        disableConcurrentBuilds()
+        skipDefaultCheckout()
+        retry(3)
+        disableResume()
+        parallelsAlwaysFailFast()
     }
 
     stages {
