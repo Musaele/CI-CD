@@ -19,14 +19,17 @@ pipeline {
             steps {
                 // Run tests if any
                 // Replace the following command with your test command
-                sh 'docker images'
+                sh 'npm test'
             }
         }
         
         stage('Deploy') {
             steps {
-                // Deploy your application using Kubernetes
-                kubernetesDeploy(configs: 'deployment.yaml')
+                // Build the Docker image with the appropriate tag
+                sh 'docker build -t musaele1/ci-cd:latest .'
+                
+                // Push the Docker image to the repository
+                sh 'docker push musaele1/ci-cd:latest'
             }
         }
     }
