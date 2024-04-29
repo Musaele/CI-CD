@@ -10,7 +10,7 @@ pipeline {
         stage('Build') {
             steps {
                 // Checkout the source code from your Git repository
-                git 'https://github.com/Musaele/CI-CD.git'
+                git branch: 'main', url: 'https://github.com/Musaele/CI-CD.git'
 
                 // Build the Docker image
                 script {
