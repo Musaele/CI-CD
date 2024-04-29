@@ -1,16 +1,20 @@
 pipeline {
     agent any
 
+    environment {
+        // Define Docker Hub credentials ID
+        DOCKER_HUB_CREDENTIALS = 'dockerhub_credentials'
+    }
+
     stages {
         stage('Build') {
             steps {
                 // Checkout the source code from your Git repository
                 git 'https://github.com/Musaele/CI-CD.git'
-                
-                // Use Node.js Docker image for building
-                docker.image('node:latest').inside {
-                    // Install dependencies
-                    sh 'npm install'
+
+                // Build the Docker image
+                script {
+                    dockerImage = docker.build('musaele1/ci-cd:latest')
                 }
             }
         }
@@ -23,13 +27,30 @@ pipeline {
             }
         }
         
-        stage('Deploy') {
+        stage('Deploy to Docker Hub') {
             steps {
-                // Build the Docker image with the appropriate tag
-                sh 'docker build -t musaele1/ci-cd:latest .'
-                
-                // Push the Docker image to the repository
-                sh 'docker push musaele1/ci-cd:latest'
+                // Authenticate with Docker Hub
+                withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    // Log in to Docker Hub
+                    sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+
+                    // Push the Docker image to Docker Hub
+                    sh 'docker push musaele1/ci-cd:latest'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            environment {
+                // Define Kubernetes credentials ID
+                KUBE_CONFIG = credentials('Kubernetes')
+            }
+            steps {
+                // Set up Kubernetes configuration
+                withKubeConfig(credentialsId: KUBE_CONFIG) {
+                    // Apply Kubernetes deployment
+                    sh 'kubectl apply -f deployment.yaml'
+                }
             }
         }
     }
