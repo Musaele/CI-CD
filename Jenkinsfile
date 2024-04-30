@@ -4,6 +4,8 @@ pipeline {
     environment {
         // Define Docker Hub credentials ID
         DOCKER_HUB_CREDENTIALS = 'docker-credentials'
+        // Define the path to the kubeconfig file
+        KUBECONFIG = '/root/.kube/kubeconfig.yaml'
     }
 
     stages {
@@ -30,6 +32,12 @@ pipeline {
         
         stage('Deploy to Kubernetes') {
             steps {
+                // Set the KUBECONFIG environment variable
+                sh "export KUBECONFIG=$KUBECONFIG"
+                
+                // Pull the Docker image from Docker Hub (optional)
+                sh 'docker pull musaele1/ci-cd:latest'
+                
                 // Apply the Deployment YAML file
                 sh 'kubectl apply -f deployment.yaml'
                 
