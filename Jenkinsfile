@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // Define Docker Hub credentials ID
-        DOCKER_HUB_CREDENTIALS = 'dockerhub_credentials'
-    }
-
     options {
         buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '5'))
         timestamps()
@@ -16,7 +11,7 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage('Build and Push Docker Image') {
             steps {
                 // Checkout the source code from your Git repository
                 git branch: 'main', url: 'https://github.com/Musaele/CI-CD.git'
@@ -25,40 +20,11 @@ pipeline {
                 script {
                     dockerImage = docker.build('musaele1/ci-cd:latest')
                 }
-            }
-        }
-        
-        stage('Test') {
-            steps {
-                // Run tests if any
-                // Replace the following command with your test command
-                sh 'npm test'
-            }
-        }
-        
-        stage('Deploy to Docker Hub') {
-            steps {
-                // Authenticate with Docker Hub
-                withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    // Log in to Docker Hub
+                
+                // Push the Docker image to Docker Hub
+                withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-
-                    // Push the Docker image to Docker Hub
                     sh 'docker push musaele1/ci-cd:latest'
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            environment {
-                // Define Kubernetes credentials ID
-                KUBE_CONFIG = credentials('Kubernetes')
-            }
-            steps {
-                // Set up Kubernetes configuration
-                withKubeConfig(credentialsId: KUBE_CONFIG) {
-                    // Apply Kubernetes deployment
-                    sh 'kubectl apply -f deployment.yaml'
                 }
             }
         }
