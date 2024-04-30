@@ -27,5 +27,15 @@ pipeline {
                 }
             }
         }
+        
+        stage('Deploy to Kubernetes') {
+            steps {
+                // Apply the Deployment YAML file
+                sh 'kubectl apply -f deployment.yaml'
+                
+                // Apply the Service YAML file
+                sh 'kubectl apply -f service.yaml'
+            }
+        }
     }
 }
