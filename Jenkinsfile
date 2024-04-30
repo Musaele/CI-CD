@@ -1,13 +1,9 @@
 pipeline {
     agent any
 
-    options {
-        buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '5'))
-        timestamps()
-        timeout(time: 1, unit: 'HOURS')
-        disableConcurrentBuilds()
-        retry(3)
-        parallelsAlwaysFailFast()
+    environment {
+        // Define Docker Hub credentials ID
+        DOCKER_HUB_CREDENTIALS = 'dockerhub_credentials'
     }
 
     stages {
@@ -21,9 +17,12 @@ pipeline {
                     dockerImage = docker.build('musaele1/ci-cd:latest')
                 }
                 
-                // Push the Docker image to Docker Hub
-                withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                // Authenticate with Docker Hub and push the Docker image
+                withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    // Log in to Docker Hub
                     sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
+
+                    // Push the Docker image to Docker Hub
                     sh 'docker push musaele1/ci-cd:latest'
                 }
             }
