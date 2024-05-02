@@ -5,7 +5,7 @@ pipeline {
         // Define Docker Hub credentials ID
         DOCKER_HUB_CREDENTIALS = 'docker-credentials'
         // Define the path to the kubeconfig file
-        KUBECONFIG = '/root/.kube/kubeconfig.yaml'
+        KUBECONFIG = '/var/lib/jenkins/workspace/CI-CD/kubeconfig.yaml'
     }
 
     stages {
@@ -39,10 +39,10 @@ pipeline {
                 sh 'docker pull musaele1/ci-cd:latest'
                 
                 // Apply the Deployment YAML file
-                sh 'kubectl apply -f deployment.yaml'
+                sh 'kubectl apply -f deployment.yaml --kubeconfig=$KUBECONFIG'
                 
                 // Apply the Service YAML file
-                sh 'kubectl apply -f service.yaml'
+                sh 'kubectl apply -f service.yaml --kubeconfig=$KUBECONFIG'
             }
         }
     }
