@@ -4,8 +4,8 @@ pipeline {
     environment {
         // Define Docker Hub credentials ID
         DOCKER_HUB_CREDENTIALS = 'docker-credentials'
-        // Define the path to the kubeconfig file
-        KUBECONFIG = '/var/lib/jenkins/workspace/CI-CD/kubeconfig.yaml'
+        // Define the ID of the uploaded kubeconfig.yaml file
+        KUBECONFIG_CREDENTIALS = 'microk8s'
     }
 
     stages {
@@ -31,6 +31,10 @@ pipeline {
         }
         
         stage('Deploy to Kubernetes') {
+            environment {
+                // Use the uploaded kubeconfig.yaml file only in this stage
+                KUBECONFIG = credentials('microk8s')
+            }
             steps {
                 // Set the KUBECONFIG environment variable
                 withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
