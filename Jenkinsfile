@@ -33,16 +33,13 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 // Set the KUBECONFIG environment variable
-                sh "export KUBECONFIG=$KUBECONFIG"
-                
-                // Pull the Docker image from Docker Hub (optional)
-                sh 'docker pull musaele1/ci-cd:latest'
-                
-                // Apply the Deployment YAML file
-                sh 'kubectl apply -f deployment.yaml --kubeconfig=$KUBECONFIG'
-                
-                // Apply the Service YAML file
-                sh 'kubectl apply -f service.yaml --kubeconfig=$KUBECONFIG'
+                withEnv(["KUBECONFIG=${KUBECONFIG}"]) {
+                    // Apply the Deployment YAML file
+                    sh 'kubectl apply -f deployment.yaml'
+                    
+                    // Apply the Service YAML file
+                    sh 'kubectl apply -f service.yaml'
+                }
             }
         }
     }
