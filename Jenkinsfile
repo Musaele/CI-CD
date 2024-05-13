@@ -13,8 +13,10 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'musaele1', '111P@kistan111') {
-                        docker.image('musaele1/ci-cd:latest').push()
+                    withCredentials([usernamePassword(credentialsId: 'docker', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        docker.withRegistry('https://index.docker.io/v1/', DOCKER_USERNAME, DOCKER_PASSWORD) {
+                            docker.image('musaele1/ci-cd:latest').push()
+                        }
                     }
                 }
             }
