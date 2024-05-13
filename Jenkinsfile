@@ -21,6 +21,15 @@ pipeline {
             }
         }
         
+        stage('Install kubectl') {
+            steps {
+                script {
+                    // Install kubectl
+                    sh "snap install kubectl --classic"
+                }
+            }
+        }
+        
         stage('Deploy to Kubernetes') {
             steps {
                 script {
