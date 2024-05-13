@@ -5,7 +5,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
                     def dockerImage = docker.build('musaele1/ci-cd:latest')
                 }
             }
@@ -14,18 +13,8 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    // Login to Docker Hub and push the image
                     sh "docker login -u musaele1 -p 111P@kistan111"
                     sh "docker push musaele1/ci-cd:latest"
-                }
-            }
-        }
-        
-        stage('Install kubectl') {
-            steps {
-                script {
-                    // Install kubectl
-                    sh "snap install kubectl --classic"
                 }
             }
         }
@@ -33,13 +22,8 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Load the kubeconfig file
                     withCredentials([file(credentialsId: 'Kubernetes', variable: 'KUBECONFIG')]) {
-                        // Set KUBECONFIG environment variable
-                        env.KUBECONFIG = "${env.WORKSPACE}/kubeconfig.yaml"
-                        
-                        // Deploy to Kubernetes using kubectl
-                        sh "kubectl apply -f deployment.yaml"
+                        sh "microk8s.kubectl --kubeconfig=$KUBECONFIG apply -f deployment.yaml"
                     }
                 }
             }
