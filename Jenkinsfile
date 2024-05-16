@@ -1,6 +1,10 @@
 pipeline {
     agent any
     
+    environment {
+        DOCKER_CREDENTIALS = credentials('docker')
+    }
+    
     stages {
         stage('Build Docker Image') {
             steps {
@@ -13,8 +17,10 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    sh "docker login -u musaele1 -p 111P@kistan111"
-                    sh "docker push musaele1/ci-cd:latest"
+                    withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: DOCKER_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD']]) {
+                        sh "docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD"
+                        sh "docker push musaele1/ci-cd:latest"
+                    }
                 }
             }
         }
